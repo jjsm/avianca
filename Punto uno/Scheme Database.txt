@@ -46,6 +46,7 @@ CREATE TABLE tipos_aviones(
 	descripcion varchar2(50) NULL,
     CONSTRAINT PK_tipos_aviones PRIMARY KEY (id)  
 );
+
 CREATE TABLE modelos_aviones(
 	id NUMBER ,
 	tipo_avion_id number NULL,
@@ -94,3 +95,82 @@ CREATE TABLE rutas(
 	aeropuerto_destino_id number NOT NULL,
     CONSTRAINT PK_rutas PRIMARY KEY (id) 
 );
+
+
+CREATE TABLE vuelos(
+	id NUMBER ,
+	ruta_id number NULL,
+	numero_vuelo number NULL,
+	frecuencia_semanal number NULL,
+	tripulantes_requeridos number NULL,
+	tipo_avion_id number NOT NULL,
+    CONSTRAINT PK_vuelos PRIMARY KEY (id) 
+);
+
+CREATE TABLE itinerarios(
+	id NUMBER ,
+	fecha_salida_estimada date NULL,
+	fecha_llegada_estimada date NULL,
+	fecha_salida_real date NULL,
+	fecha_llegada_real date NULL,
+	duracion_real number NULL,
+	cantidad_pasajeros smallint NULL,
+	vuelo_id number NULL,
+	avion_id number NULL,
+	piloto_id number NULL,
+	copiloto_id number NULL,
+    CONSTRAINT PK_itinerarios PRIMARY KEY (id)
+);
+
+CREATE TABLE log_vuelos(
+	id NUMBER ,
+	timestamp timestamp NULL,
+	fecha_utc date NULL,
+	latitud binary_double NULL,
+	longitud binary_double NULL,
+	velocidad number NULL,
+	direccion varchar2(100) NULL,
+	altitud number NULL,
+	itinerario_id number NULL,
+    CONSTRAINT PK_log_vuelos PRIMARY KEY (id) 
+);
+
+CREATE TABLE checkin(
+	id NUMBER ,
+	itinerario_id number NULL,
+	pasajero_id number NULL,
+	nro_confimacion_checkin number NULL,
+	contacto_emergencia varchar2(100) NULL,
+	ciudad_contacto_emergencia varchar2(100) NULL,
+	pais_contacto_emergencia varchar2(100) NULL,
+	correo_contacto_emergencia varchar2(100) NULL,
+	telefono_contacto_emergencia varchar2(14) NULL,
+	confirmacion_checkin char(1) NULL,
+    CONSTRAINT PK_checkin PRIMARY KEY (id),
+    CONSTRAINT check_confirmacion_checkin CHECK (confirmacion_checkin IN ('1','0'))
+);
+
+CREATE TABLE tripulantes(
+	id NUMBER ,
+	itinerario_id number NULL,
+	empleado_id number NULL,
+    CONSTRAINT PK_tripulantes PRIMARY KEY (id) 
+);
+
+ALTER TABLE aviones ADD CONSTRAINT FK_aviones__modelos_aviones FOREIGN KEY (modelo_avion_id) REFERENCES modelos_aviones(id);
+ALTER TABLE checkin ADD CONSTRAINT FK_checkin__itinerarios FOREIGN KEY(itinerario_id) REFERENCES itinerarios (id);
+ALTER TABLE checkin ADD CONSTRAINT FK_checkin__pasajeros FOREIGN KEY(pasajero_id) REFERENCES pasajeros (id);
+ALTER TABLE itinerarios ADD CONSTRAINT FK_itinerarios__aviones FOREIGN KEY(avion_id) REFERENCES aviones (id);
+ALTER TABLE itinerarios ADD CONSTRAINT FK_itinerarios__pilotos FOREIGN KEY(piloto_id) REFERENCES pilotos (id);
+ALTER TABLE itinerarios ADD CONSTRAINT FK_itinerarios__copilotos FOREIGN KEY(copiloto_id) REFERENCES pilotos (id);
+ALTER TABLE itinerarios ADD CONSTRAINT FK_itinerarios__vuelos FOREIGN KEY(vuelo_id) REFERENCES vuelos (id);
+ALTER TABLE licencias_pilotos ADD CONSTRAINT FK_licencias_pilotos__pilotos FOREIGN KEY(piloto_id) REFERENCES pilotos (id);
+ALTER TABLE log_vuelos ADD CONSTRAINT FK_log_vuelos__itinerarios FOREIGN KEY(itinerario_id) REFERENCES itinerarios (id);
+ALTER TABLE modelos_aviones ADD CONSTRAINT FK_mod_aviones_tipo_avione FOREIGN KEY(tipo_avion_id) REFERENCES tipos_aviones (id);
+ALTER TABLE pilotos  ADD CONSTRAINT FK_pilotos__empleados FOREIGN KEY(empleado_id) REFERENCES empleados (id);
+ALTER TABLE rutas ADD CONSTRAINT FK_rutas__aeropuerto_origen FOREIGN KEY(aeropuerto_origen_id) REFERENCES aeropuertos (id);
+ALTER TABLE rutas ADD CONSTRAINT FK_rutas__aeropuertos_destino FOREIGN KEY(aeropuerto_destino_id) REFERENCES aeropuertos (id);
+ALTER TABLE tripulantes ADD CONSTRAINT FK_tripulantes__empleados FOREIGN KEY(empleado_id) REFERENCES empleados (id);
+ALTER TABLE tripulantes ADD CONSTRAINT FK_tripulantes__itinerarios FOREIGN KEY(itinerario_id) REFERENCES itinerarios (id);
+ALTER TABLE vuelos ADD CONSTRAINT FK_vuelos__rutas FOREIGN KEY(ruta_id) REFERENCES rutas (id);
+ALTER TABLE vuelos ADD CONSTRAINT FK_vuelos__tipos_aviones FOREIGN KEY(tipo_avion_id) REFERENCES tipos_aviones (id);

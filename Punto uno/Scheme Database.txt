@@ -46,3 +46,51 @@ CREATE TABLE tipos_aviones(
 	descripcion varchar2(50) NULL,
     CONSTRAINT PK_tipos_aviones PRIMARY KEY (id)  
 );
+CREATE TABLE modelos_aviones(
+	id NUMBER ,
+	tipo_avion_id number NULL,
+	modelo_general varchar2(100) NULL,
+	modelo_especifico varchar2(100) NULL,
+	capacidad_ejecutiva number NULL,
+	capacidad_economica number NULL,
+    CONSTRAINT PK_modelos_aviones PRIMARY KEY (id) 
+);
+
+CREATE TABLE aviones(
+	id NUMBER ,
+	matricula varchar2(50) NULL,
+	numero_serial varchar2(50) NULL,
+	edad smallint NULL,
+	modelo_avion_id smallint NOT NULL,
+    CONSTRAINT PK_aviones PRIMARY KEY (id)
+);
+
+CREATE TABLE pasajeros(
+	id NUMBER ,
+	nombre varchar2(100) NULL,
+	apellido varchar2(100) NULL,
+	identificacion varchar2(100) NULL,
+	tipo_documento varchar2(100) NULL,
+    CONSTRAINT PK_pasajeros PRIMARY KEY (id),
+    CONSTRAINT check_tipo_documento CHECK (tipo_documento IN ('CC', 'PP', 'DNI', 'CE'))
+);
+
+CREATE TABLE aeropuertos(
+	id NUMBER ,
+	ciudad varchar2(100) NULL,
+	abreviacion varchar2(100) NULL,
+	nombre varchar2(100) NULL,
+	latitud binary_double NULL,
+	longitud binary_double NULL,
+	pais varchar2(100) NULL,
+    CONSTRAINT PK_aeropuertos PRIMARY KEY (id) 
+);
+
+CREATE TABLE rutas(
+	id NUMBER ,
+	distancia number NULL,
+	cantidad_promedio_horas number NULL,
+	aeropuerto_origen_id number NOT NULL,
+	aeropuerto_destino_id number NOT NULL,
+    CONSTRAINT PK_rutas PRIMARY KEY (id) 
+);

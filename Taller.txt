@@ -64,3 +64,6 @@ ALTER SYSTEM SET UNDO_TABLESPACE = undo_avianca;
     
     ALTER USER andres ACCOUNT LOCK;
 
+
+10. Url video:
+    https://youtu.be/CfZQ90DK_NA    

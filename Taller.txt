@@ -10,23 +10,58 @@ ALTER SYSTEM SET UNDO_TABLESPACE = undo_avianca;
 
 4. Create a DBA user (with the role DBA) and assign it to the tablespace called "avianca", this user has unlimited space on the tablespace (The user should have permission to connect) (0.125)
 
-CREATE USER admin_dba IDENTIFIED by oracle DEFAULT TABLESPACE avianca;
-CREATE ROLE DBA;
-GRANT UNLIMITED TABLESPACE, DBA, CONNECT TO DBA;
-GRANT DBA TO admin_dba;
+    CREATE USER admin_dba IDENTIFIED by oracle DEFAULT TABLESPACE avianca;
+    CREATE ROLE DBA;
+    GRANT UNLIMITED TABLESPACE, DBA, CONNECT TO DBA;
+    GRANT DBA TO admin_dba;
 
 
 5. Create 2 profiles. 
 
-a.	Profile 1: "clerk" password life 40 days, one session per user, 10 minutes idle, 4 failed login attempts 
-create profile clerk LIMIT
-	PASSWORD_LIFE_TIME 40
-	sessions_per_user  1
-idle_time 10
-failed_login_attempts 4
+    a.	Profile 1: "clerk" password life 40 days, one session per user, 10 minutes idle, 4 failed login attempts 
+        
+        create profile clerk LIMIT
+        PASSWORD_LIFE_TIME 40
+        sessions_per_user  1
+        idle_time 10
+        failed_login_attempts 4
 
-b.	Profile 2: "development" password life 100 days, two session per user, 30 minutes idle, no failed login attempts
-create profile development LIMIT
-PASSWORD_LIFE_TIME 100
-sessions_per_user  2
-idle_time 30
+    b.	Profile 2: "development" password life 100 days, two session per user, 30 minutes idle, no failed login attempts
+        
+        create profile development LIMIT
+        PASSWORD_LIFE_TIME 100
+        sessions_per_user  2
+        idle_time 30
+
+6. Create 4 users, assign them the tablespace "avianca"; 2 of them should have the clerk profile and the remaining the development profile, all the users should be allow to connect to the database. 
+    
+    CREATE USER jhon 
+    IDENTIFIED by oracle 
+    DEFAULT TABLESPACE avianca
+    QUOTA UNLIMITED ON avianca
+    PROFILE clerk;
+
+    CREATE USER andres 
+    IDENTIFIED by oracle 
+    DEFAULT TABLESPACE avianca
+    QUOTA UNLIMITED ON avianca
+    PROFILE clerk;
+
+    CREATE USER edward 
+    IDENTIFIED by oracle 
+    DEFAULT TABLESPACE avianca
+    QUOTA UNLIMITED ON avianca
+    PROFILE development;
+
+    CREATE USER brallan 
+    IDENTIFIED by oracle 
+    DEFAULT TABLESPACE avianca
+    QUOTA UNLIMITED ON avianca
+    PROFILE development;
+
+    GRANT  CONNECT TO brallan, Edward, andres,jhon;
+
+7. Lock one user associate with clerk profile 
+    
+    ALTER USER andres ACCOUNT LOCK;
+

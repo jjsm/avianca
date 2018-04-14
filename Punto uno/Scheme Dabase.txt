@@ -1,0 +1,48 @@
+CREATE TABLE empleados(
+	id NUMBER ,
+	nombre varchar2(100) NULL,
+	apellido varchar2(100) NULL,
+	sexo char(1) NULL,
+	fecha_nacimiento date NULL,
+	fecha_ingreso date NULL,
+	fecha_retiro date NULL,
+	direccion varchar2(100) NULL,
+	email varchar2(100) NULL,
+	celular varchar2(15) NULL,
+	ubicacion_actual varchar2(100) NULL,
+	cantidad_horas_vuelo smallint NULL,
+	fecha_ultimo_vuelo date NULL,
+	estado_empleado varchar2(100) NULL,
+	tipo_empleado varchar2(100) NULL,
+	fecha_ultimo_entrenamiento date NULL,
+    CONSTRAINT PK_empleados PRIMARY KEY (id),
+    CONSTRAINT check_sexo CHECK (sexo IN ('M','F')),
+    CONSTRAINT check_estado_empleado CHECK (estado_empleado IN ('EN VUELO', 'ACTIVO', 'INACTIVO', 'JUBILADO','SUSPENDIDO','DESPEDIDO','ENTRENAMIENTO','LICENCIA','VACACIONES')),
+    CONSTRAINT check_tipo_empleado CHECK (tipo_empleado IN ('Pilotos', 'Auxiliares de Servicio'))
+);
+
+CREATE TABLE pilotos(
+	id NUMBER ,
+	nivel_ingles nchar(20) NULL,
+	tipo_licencia nchar(10) NULL,
+	cargo_piloto nchar(20) NULL,
+	empleado_id number NULL,
+    CONSTRAINT PK_pilotos PRIMARY KEY (id),
+    CONSTRAINT check_nivel_ingles CHECK (nivel_ingles IN ('Pre-elementary', 'Elementary','Pre-Operational','Operational','Extended','Expert')),
+    CONSTRAINT check_cargo_piloto CHECK (cargo_piloto IN ('Comandante', 'Primer Oficial')),
+    CONSTRAINT check_tipo_licencia CHECK (tipo_licencia IN ('CPL', 'IFR', 'ME', 'ATPL'))
+);
+
+CREATE TABLE licencias_pilotos(
+	id NUMBER ,
+	piloto_id number NULL,
+	descripcion_tipo_licencia nchar(10) NULL,
+    CONSTRAINT PK_licencias_pilotos PRIMARY KEY (id),
+    CONSTRAINT check_desc_tipo_licencia CHECK (descripcion_tipo_licencia IN ('CPL', 'IFR', 'ME', 'ATPL'))
+);
+
+CREATE TABLE tipos_aviones(
+	id NUMBER ,
+	descripcion varchar2(50) NULL,
+    CONSTRAINT PK_tipos_aviones PRIMARY KEY (id)  
+);

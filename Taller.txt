@@ -10,10 +10,9 @@ ALTER SYSTEM SET UNDO_TABLESPACE = undo_avianca;
 
 4. Create a DBA user (with the role DBA) and assign it to the tablespace called "avianca", this user has unlimited space on the tablespace (The user should have permission to connect) (0.125)
 
-    CREATE USER admin_dba IDENTIFIED by oracle DEFAULT TABLESPACE avianca;
-    CREATE ROLE DBA;
-    GRANT UNLIMITED TABLESPACE, DBA, CONNECT TO DBA;
-    GRANT DBA TO admin_dba;
+    CREATE USER admin_dba IDENTIFIED by oracle DEFAULT TABLESPACE avianca QUOTA UNLIMITED ON avianca;
+    GRANT  DBA, CONNECT TO admin_dba;
+    
 
 
 5. Create 2 profiles. 

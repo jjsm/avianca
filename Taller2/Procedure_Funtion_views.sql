@@ -348,3 +348,24 @@ EXCEPTION
     WHEN NO_DATA_FOUND THEN
         DBMS_OUTPUT.PUT_LINE ('No se encontraron datos');
 END;
+
+
+---- PUNTO 4
+CREATE OR REPLACE VIEW Tripulantes_Itinerarios AS 
+-- CARGA LOS TRIPULANTES DE DIFERENTES ITINERARIOS EN TODOS LOS ESTADOS
+SELECT i.id itinerario_id, e.id empleado_id,e.nombre,e.tipo_empleado ,i.estado
+FROM  tripulantes t INNER JOIN itinerarios i ON t.itinerario_id=i.id
+                  INNER JOIN empleados e   ON t.empleado_id = e.id
+ 
+union ALL
+-- CARGA EL PILOTO DE LOS DIFERENTES ITINERARIOS EN TODOS LOS ESTADOS
+select i.id itinerario_id,e.id empleado_id,e.nombre,CASE e.tipo_empleado WHEN 'Pilotos' THEN 'Piloto' END,i.estado
+from itinerarios i inner join pilotos p on i.piloto_id=p.id
+                   inner join empleados e on e.id=p.empleado_id
+
+union all
+-- CARGA EL COPILOTO DE LOS DIFERENTES ITINERARIOS EN TODOS LOS ESTADOS
+select i.id itinerario_id,e.id empleado_id,e.nombre, CASE e.tipo_empleado WHEN 'Pilotos' THEN 'CoPiloto' END,i.estado
+from itinerarios i inner join pilotos p on i.copiloto_id=p.id
+                   inner join empleados e on e.id=p.empleado_id
+order by itinerario_id;

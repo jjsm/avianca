@@ -28,3 +28,50 @@ LEFT OUTER JOIN AVIONES ON AVIONES.ID = ITINERARIOS.AVION_ID
 LEFT OUTER JOIN MODELOS_AVIONES ON AVIONES.MODELO_AVION_ID = MODELOS_AVIONES.ID
 WHERE ITINERARIOS.ESTADO IN ('Confirmado','Programado')
 ORDER BY ITINERARIOS.FECHA_LLEGADA_ESTIMADA DESC;
+
+
+
+---- PROCEDIMIENTO CREADO SOLAMENTE PARA ORGANIZAR FECHAS PARA PRUEBAS DEL EJERCICIO
+CREATE OR REPLACE PROCEDURE ORGANIZAR_FECHAS_VUELOS AS 
+    ROW_COUNT NUMBER;
+    FECHA_LLEG_TO_UP ITINERARIOS.FECHA_SALIDA_ESTIMADA%TYPE; 
+    ROUND_ROWS NUMBER;
+BEGIN
+    SELECT DISTINCT COUNT(*) INTO ROW_COUNT
+    FROM GET_VUELOS_CONFIRMADOS WHERE AEROPUERTO_DESTINO_ID IN(SELECT AEROPUERTO_ORIGEN_ID FROM GET_VUELOS_CONFIRMADOS WHERE ITINERARIO_ID BETWEEN 50000 AND 50021);
+    SELECT FECHA_SALIDA_VUELO INTO FECHA_LLEG_TO_UP FROM GET_VUELOS_CONFIRMADOS WHERE ITINERARIO_ID = 50000;
+    
+    ROUND_ROWS := ROUND(ROW_COUNT/5); 
+    
+    FOR D IN 0..ROUND_ROWS LOOP
+                    
+                    MERGE
+                    INTO ITINERARIOS trg
+                    USING (
+                        SELECT DISTINCT OU_AE.ITINERARIO_ID "ID_ITINERARIO"
+                        ,(FECHA_LLEG_TO_UP + ((select round(dbms_random.value(-10, -2)) + 1 from dual)/24)) "FECHA_LLEG_ACTUA_",
+                        ((FECHA_LLEG_TO_UP + ((select round(dbms_random.value(-10, -2)) + 1 from dual)/24)) -
+                        (OU_AE.PROMEDIO_HORAS_VUELO/24)) "FECHA_SALI_TO_UP"
+                        FROM GET_VUELOS_CONFIRMADOS OU_AE WHERE OU_AE.AEROPUERTO_DESTINO_ID IN(SELECT IN_AE.AEROPUERTO_ORIGEN_ID FROM 
+                        GET_VUELOS_CONFIRMADOS IN_AE WHERE IN_AE.ITINERARIO_ID BETWEEN 50000 AND 50021)
+                        ORDER BY OU_AE.ITINERARIO_ID
+                        OFFSET D ROWS FETCH NEXT 1 ROWS ONLY
+                    )src
+                    ON (trg.ID = src."ID_ITINERARIO")
+                    WHEN MATCHED THEN 
+                    UPDATE SET trg.FECHA_LLEGADA_ESTIMADA = src."FECHA_LLEG_ACTUA_",
+                           trg.FECHA_LLEGADA_REAL = src."FECHA_LLEG_ACTUA_",
+                           trg.FECHA_SALIDA_ESTIMADA = src."FECHA_SALI_TO_UP",
+                           trg.FECHA_SALIDA_REAL = src."FECHA_SALI_TO_UP";                                     
+                                    
+    END LOOP;
+    
+    DBMS_OUTPUT.put_line(ROW_COUNT || ' '  || FECHA_LLEG_TO_UP || ' ' || ROUND_ROWS);
+END; 
+COMMIT WORK;
+
+
+--- Este llamado del store procedure es necesario para organizar que algunos vuelos ingresados para la prueba tenga relacion con las fechas de otros vuelos
+--por favor ejecutar este store procedure
+---EXEC ORGANIZAR_FECHAS_VUELOS;
+

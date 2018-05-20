@@ -299,3 +299,52 @@ BEGIN
         END IF;
     END IF;
 END;
+
+-------PUNTO 3------------
+CREATE OR REPLACE PROCEDURE Realizar_Checkin_Pasajeros (silla IN VARCHAR, iditinerario IN NUMBER,idpasajero IN NUMBER,nro_confimacion_checkin in number ,contacto_emergencia in varchar2 ,ciudad_contacto_emergencia in varchar2 ,pais_contacto_emergencia in  varchar2 ,correo_contacto_emergencia in varchar2 ,telefono_contacto_emergencia in varchar2 ,confirmacion_checkin in char)
+as
+economica_total number;
+ejcutiva_total number;
+economica_actual number;
+ejecutiva_actual number;
+tempid number;
+
+BEGIN
+-- Total de capacidad del avion asignado
+SELECT NVL(ma.capacidad_economica,0),NVL(ma.capacidad_ejecutiva,0),NVL(i.PASAJEROS_ECONOMICA,0),NVL(i.PASAJEROS_EJECUTIVA,0) 
+INTO economica_total,ejcutiva_total,economica_actual,ejecutiva_actual 
+FROM itinerarios i 
+                    INNER JOIN aviones a ON i.avion_id=a.id  
+                    INNER JOIN modelos_aviones ma ON a.modelo_avion_id=ma.id
+where i.id=iditinerario;
+--//Valida pasajeros SI EXISTE EL ID
+select id into tempid from pasajeros where id=idpasajero;
+                --VALIDA EL TIPO DE SILLA SEA LA CORRECTA
+                IF (silla = 'ejecutiva') THEN
+                                --VALIDA DISPONIBILIDAD DE ASIENTOS
+                                IF (ejecutiva_actual < ejcutiva_total) THEN
+                                     INSERT INTO CHECKIN (itinerario_id,PASAJERO_ID,nro_confimacion_checkin ,contacto_emergencia ,ciudad_contacto_emergencia ,pais_contacto_emergencia ,correo_contacto_emergencia ,telefono_contacto_emergencia,confirmacion_checkin )
+                                                 VALUES (iditinerario,idpasajero,nro_confimacion_checkin ,contacto_emergencia ,ciudad_contacto_emergencia ,pais_contacto_emergencia ,correo_contacto_emergencia ,telefono_contacto_emergencia,confirmacion_checkin);
+                                     ejecutiva_actual := ejecutiva_actual+ 1;
+                                     UPDATE itinerarios SET PASAJEROS_EJECUTIVA=ejecutiva_actual WHERE id=iditinerario;
+                                     COMMIT;
+                                ELSE
+                                     DBMS_OUTPUT.PUT_LINE('No hay asientos para la clase Ejecutiva');
+                                END IF;            
+                 ELSIF (silla = 'economica') THEN
+                                IF (economica_actual < economica_total) THEN
+                                     INSERT INTO CHECKIN (itinerario_id,PASAJERO_ID,nro_confimacion_checkin ,contacto_emergencia ,ciudad_contacto_emergencia ,pais_contacto_emergencia ,correo_contacto_emergencia ,telefono_contacto_emergencia,confirmacion_checkin )
+                                                 VALUES (iditinerario,idpasajero,nro_confimacion_checkin ,contacto_emergencia ,ciudad_contacto_emergencia ,pais_contacto_emergencia ,correo_contacto_emergencia ,telefono_contacto_emergencia,confirmacion_checkin);
+                                     economica_actual := economica_actual + 1;
+                                     UPDATE itinerarios SET PASAJEROS_ECONOMICA=economica_actual WHERE id=iditinerario;
+                                     COMMIT;
+                                ELSE
+                                     DBMS_OUTPUT.PUT_LINE('No hay asientos para la clase Economica');
+                                END IF; 
+                 ELSE
+                                DBMS_OUTPUT.PUT_LINE('No existe el tipo de silla: ' || silla);
+                 END IF;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE ('No se encontraron datos');
+END;

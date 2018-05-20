@@ -369,3 +369,13 @@ select i.id itinerario_id,e.id empleado_id,e.nombre, CASE e.tipo_empleado WHEN '
 from itinerarios i inner join pilotos p on i.copiloto_id=p.id
                    inner join empleados e on e.id=p.empleado_id
 order by itinerario_id;
+
+------PUNTO 5----
+CREATE OR REPLACE VIEW VuelosProgramados AS
+SELECT i.id,r.aeropuerto_origen_id ,ao.ciudad CIUDAD_ORIGEN,r.aeropuerto_destino_id ,ad.ciudad CIUDAD_DESTINO,v.numero_vuelo,i.fecha_salida_estimada
+FROM itinerarios i INNER JOIN  vuelos v ON i.vuelo_id=v.id
+                   INNER JOIN rutas r   ON v.ruta_id=r.id
+                   INNER JOIN aeropuertos ad ON r.AEROPUERTO_DESTINO_ID=ad.id
+                   INNER JOIN aeropuertos ao ON r.AEROPUERTO_ORIGEN_ID=ao.id
+WHERE    TRUNC(i.fecha_salida_estimada) between TRUNC(SYSDATE) and TRUNC(SYSDATE + 15)
+ORDER BY i.fecha_salida_estimada;

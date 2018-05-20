@@ -11067,5 +11067,8 @@ INSERT INTO tripulantes (id,itinerario_id,empleado_id) VALUES (20996,14935,1158)
 INSERT INTO tripulantes (id,itinerario_id,empleado_id) VALUES (20997,13449,1121);
 INSERT INTO tripulantes (id,itinerario_id,empleado_id) VALUES (20998,14788,1158);
 INSERT INTO tripulantes (id,itinerario_id,empleado_id) VALUES (20999,13127,1134);
+
+
+
 COMMIT WORK;
 

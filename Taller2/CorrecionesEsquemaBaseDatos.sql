@@ -22,7 +22,7 @@ ALTER TABLE aviones  ADD CONSTRAINT check_estado_aviones CHECK (estado IN ('Vuel
 --  B)
 
 ALTER TABLE aviones ADD aeropuerto_id  number  NULL;
-ALTER TABLE aviones ADD CONSTRAINT FK_aviones__aeropuertos FOREIGN KEY (aeropuertos_id) REFERENCES aeropuertos(id);
+ALTER TABLE aviones ADD CONSTRAINT FK_aviones__aeropuertos FOREIGN KEY (aeropuerto_id) REFERENCES aeropuertos(id);
 
 --  C)
 ALTER TABLE itinerarios ADD estado  varchar2(11)  NULL;

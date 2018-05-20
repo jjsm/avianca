@@ -232,45 +232,6 @@ trg.FECHA_SALIDA_ESTIMADA = src."FECHA_SALIDA_ESTIMADA",
 trg.FECHA_SALIDA_REAL = src."FECHA_SALIDA_ESTIMADA",
 trg.duracion_real = src."DURACION_VUELO";
 
-CREATE OR REPLACE PROCEDURE ORGANIZAR_FECHAS_VUELOS AS 
-    ROW_COUNT NUMBER;
-    FECHA_LLEG_TO_UP ITINERARIOS.FECHA_SALIDA_ESTIMADA%TYPE; 
-    ROUND_ROWS NUMBER;
-BEGIN
-    SELECT DISTINCT COUNT(*) INTO ROW_COUNT
-    FROM GET_VUELOS_CONFIRMADOS WHERE AEROPUERTO_DESTINO_ID IN(SELECT AEROPUERTO_ORIGEN_ID FROM GET_VUELOS_CONFIRMADOS WHERE ITINERARIO_ID BETWEEN 50000 AND 50021);
-    SELECT FECHA_SALIDA_VUELO INTO FECHA_LLEG_TO_UP FROM GET_VUELOS_CONFIRMADOS WHERE ITINERARIO_ID = 50000;
-    
-    ROUND_ROWS := ROUND(ROW_COUNT/5); 
-    
-    FOR D IN 0..ROUND_ROWS LOOP
-                    
-                    MERGE
-                    INTO ITINERARIOS trg
-                    USING (
-                        SELECT DISTINCT OU_AE.ITINERARIO_ID "ID_ITINERARIO"
-                        ,(FECHA_LLEG_TO_UP + ((select round(dbms_random.value(-10, -2)) + 1 from dual)/24)) "FECHA_LLEG_ACTUA_",
-                        ((FECHA_LLEG_TO_UP + ((select round(dbms_random.value(-10, -2)) + 1 from dual)/24)) -
-                        (OU_AE.PROMEDIO_HORAS_VUELO/24)) "FECHA_SALI_TO_UP"
-                        FROM GET_VUELOS_CONFIRMADOS OU_AE WHERE OU_AE.AEROPUERTO_DESTINO_ID IN(SELECT IN_AE.AEROPUERTO_ORIGEN_ID FROM 
-                        GET_VUELOS_CONFIRMADOS IN_AE WHERE IN_AE.ITINERARIO_ID BETWEEN 50000 AND 50021)
-                        ORDER BY OU_AE.ITINERARIO_ID
-                        OFFSET D ROWS FETCH NEXT 1 ROWS ONLY
-                    )src
-                    ON (trg.ID = src."ID_ITINERARIO")
-                    WHEN MATCHED THEN 
-                    UPDATE SET trg.FECHA_LLEGADA_ESTIMADA = src."FECHA_LLEG_ACTUA_",
-                           trg.FECHA_LLEGADA_REAL = src."FECHA_LLEG_ACTUA_",
-                           trg.FECHA_SALIDA_ESTIMADA = src."FECHA_SALI_TO_UP",
-                           trg.FECHA_SALIDA_REAL = src."FECHA_SALI_TO_UP";                                     
-                                    
-    END LOOP;
-    
-    DBMS_OUTPUT.put_line(ROW_COUNT || ' '  || FECHA_LLEG_TO_UP || ' ' || ROUND_ROWS);
-END;
-
-
-
 UPDATE empleados SET UBICACION_ACTUAL='LAUNION'                                      ,Fecha_ultimo_Vuelo=SYSDATE-4 + dbms_random.value(1,3),estado_empleado='ACTIVO' WHERE ID=1199; 
 UPDATE empleados SET UBICACION_ACTUAL='CAICEDO'                                      ,Fecha_ultimo_Vuelo=SYSDATE-4 + dbms_random.value(1,3),estado_empleado='ACTIVO' WHERE ID=1200; 
 UPDATE empleados SET UBICACION_ACTUAL='NECHI'                                      ,Fecha_ultimo_Vuelo=SYSDATE-4 + dbms_random.value(1,3),estado_empleado='ACTIVO' WHERE ID=1201; 
